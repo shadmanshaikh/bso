@@ -19,3 +19,37 @@ Create a simple PWA that meets the following requirements:
 
 # This video is posted on youtube [watch demo](https://www.youtube.com/watch?v=b8_O5vBPni0)
 
+## API Endpoints :
+
+### Astro.js [client side]
+
+http://localhost:4321
+
+```
+/register
+``` 
+```
+/login
+```
+```
+/user
+```
+```
+/cart
+```
+
+- The endpoints are pretty self explanatory
+
+### STRAPI admin panel [server side]
+
+http://localhost:1337
+
+- The collection Types as specified by the task description are :
+  1. User
+  2. Products
+  3. Category (optional)
+-  The component to add the product is cart where there is a relation between user and products (i.e with relation **single** user cart has **many** products )
+
+### Adding of web sockets for broadcasting the changes to the store and service workers to get a feature PWA (progressive web app) 
+
+
