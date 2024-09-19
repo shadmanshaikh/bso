@@ -1,0 +1,50 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="User Profile">
+  <div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-md">
+      <h2 class="text-3xl font-bold text-center text-gray-900 mb-6">Profile Page</h2>
+      <p id="username"></p>
+      <p id="email"></p>
+      <button id="logout" type="submit" class="bg-black rounded text-white p-3 mt-3">logout</button>
+    </div>
+  </div>
+
+  <script>
+    // Fetch user data on client side
+    async function fetchUserProfile() {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        try {
+          const response = await fetch('http://localhost:1337/api/users/me', {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          const user = await response.json();
+          document.getElementById('username').innerHTML = user.username;
+          document.getElementById('email').innerHTML = user.email;
+          // Display user profile data i  n the DOM
+
+        } catch (error) {
+          console.error('Error fetching user profile:', error);
+        }
+      }
+    }
+
+    // function handleLogout() {
+    //   localStorage.removeItem('authToken');
+    //   window.location.href = '/login';
+    // }
+    document.getElementById("logout").addEventListener("click" , function(){
+        localStorage.removeItem('authToken');
+        window.location.href = '/';
+    });
+    // Call the function to fetch the user profile
+    fetchUserProfile();
+
+  </script>
+</Layout>

@@ -1,0 +1,16 @@
+{
+  "collectionName": "components_e_commerce_cart_items",
+  "info": {
+    "displayName": "CartItem",
+    "icon": "gift",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "products": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::product.product"
+    }
+  }
+}

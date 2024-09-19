@@ -1,0 +1,27 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Logout">
+  <div class="min-h-screen flex flex-col items-center bg-gray-100 py-12">
+    <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-4xl">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8">Logging Out...</h2>
+
+      <p class="text-gray-600">You are being logged out...</p>
+
+      <!-- Logout Script -->
+      <script>
+        document.addEventListener('DOMContentLoaded', () => {
+          // Remove JWT from local storage or cookies
+          localStorage.removeItem('jwt'); // Adjust if using cookies or another storage method
+
+          // Optionally, clear cookies if using cookies for JWT
+          document.cookie = 'jwt=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+
+          // Redirect to login page
+          window.location.href = '/login';
+        });
+      </script>
+    </div>
+  </div>
+</Layout>

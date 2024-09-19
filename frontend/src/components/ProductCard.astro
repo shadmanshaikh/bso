@@ -1,0 +1,69 @@
+---
+// src/components/ProductCard.astro
+
+const { imageUrl, name, price, description, onAddToCart, onRemoveFromCart } = Astro.props;
+
+let showInfo = false;
+
+function toggleInfo() {
+  showInfo = !showInfo;
+}
+---
+
+<div class="relative bg-white border border-gray-200 rounded-lg shadow-md overflow-hidden">
+  <!-- Product Card -->
+  <img 
+    src={imageUrl} 
+    alt={name} 
+    class="w-full h-48 object-cover cursor-pointer" 
+    on:click={() => toggleInfo()} 
+  />
+  <div class="p-4">
+    <h3 class="text-lg font-semibold text-gray-800">{name}</h3>
+    <p class="text-gray-600 text-xl">{price}</p>
+    <div class="flex justify-between mt-4">
+      <button 
+        class="bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
+        on:click={() => onAddToCart()} 
+      >
+        Add to Cart
+      </button>
+      <button 
+        class="bg-red-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition"
+        on:click={() => onRemoveFromCart()}
+      >
+        Remove
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Info Window -->
+  {showInfo && (
+    <div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg relative">
+        <button 
+          class="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+          on:click={() => toggleInfo()}
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+        <img src={imageUrl} alt={name} class="w-full h-48 object-cover rounded-md" />
+        <div class="mt-4">
+          <h3 class="text-2xl font-bold text-gray-900">{name}</h3>
+          <p class="text-xl text-gray-700">{price}</p>
+          <p class="mt-2 text-gray-600">{description}</p>
+          <div class="mt-4">
+            <button 
+              class="bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition"
+              on:click={() => onAddToCart()}
+            >
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</div>

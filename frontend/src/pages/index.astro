@@ -1,0 +1,118 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<Layout title="Home Page">
+  <main>
+    <header class="bg-white shadow-md">
+      <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+        <div class="text-2xl font-bold text-gray-900">MyStyle</div>
+        
+        <!-- Search Bar -->
+        <div class="relative">
+          <input type="text" class="border border-gray-300 rounded-lg pl-4 pr-10 py-2 text-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="Search products">
+          <button class="absolute right-2 top-2 text-gray-400 hover:text-gray-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 4v1m0 10v1m4-12v1m0 10v1m4-12v1m0 10v1M3 7h18M3 12h18m-9 5h9" />
+            </svg>
+          </button>
+        </div>
+        
+        <!-- Icons (Cart and Conditional Auth Icon) -->
+        <div class="flex items-center space-x-4">
+          <!-- Cart Icon -->
+          <a href="/cart" class="text-gray-600 hover:text-gray-900">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.857 12.485A2 2 0 007.857 17h8.286a2 2 0 001.998-1.515L21 5H6" />
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="19" cy="21" r="1" />
+            </svg>
+          </a>
+
+          <!-- Conditional Auth Icon -->
+          <a id="auth-link" class="text-gray-600 hover:text-gray-900">
+            <svg id="auth-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M15 12H3m12 0l-4-4m4 4l-4 4m6-10v-1a3 3 0 00-3-3H6a3 3 0 00-3 3v14a3 3 0 003 3h9a3 3 0 003-3v-1" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-indigo-500 text-white py-24 text-center">
+      <h1 class="text-4xl font-bold mb-4">Welcome to MyStyle</h1>
+      <p class="text-lg mb-8">Discover the latest trends in fashion</p>
+      <a href="#" class="bg-white text-indigo-500 px-6 py-3 rounded-lg font-semibold">Shop Now</a>
+    </section>
+
+    <!-- Product Categories -->
+    <section class="container mx-auto px-4 py-16">
+      <h2 class="text-3xl font-bold text-center mb-12">Explore Our Categories</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <a href="/pants">
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <img src="http://localhost:4321/assets/pants.avif" alt="Category 1" class="w-full h-48 object-cover">
+            <div class="p-4">
+              <h3 class="font-bold text-xl mb-2">Pants</h3>
+              <p class="text-gray-600">Explore the latest in Pants.</p>
+            </div>
+          </div>
+        </a>
+        <a href="/jackets">
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <img src="http://localhost:4321/assets/demin-jacket.jpg" alt="Category 2" class="w-full h-48 object-cover">
+            <div class="p-4">
+              <h3 class="font-bold text-xl mb-2">Jackets</h3>
+              <p class="text-gray-600">Discover elegant styles of Jackets.</p>
+            </div>
+          </div>
+        </a>
+        <a href="/tshirts">
+          <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <img src="http://localhost:4321/assets/t-shirt.avif" alt="Category 3" class="w-full h-48 object-cover">
+            <div class="p-4">
+              <h3 class="font-bold text-xl mb-2">T-shirts</h3>
+              <p class="text-gray-600">Complete your look with the latest T-shirts.</p>
+            </div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-6">
+      <div class="container mx-auto text-center">
+        <p>&copy; 2024 MyStyle. All Rights Reserved.</p>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Client-side JavaScript for authentication logic -->
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const token = localStorage.getItem('authToken');
+    const authLink = document.getElementById('auth-link') as HTMLAnchorElement;
+    const authIcon = document.getElementById('auth-icon') as unknown as SVGElement; // Use unknown to bypass type conflict
+    console.log(token);
+    if (authLink) {
+      authLink.href = token ? '/user' : '/login';
+    }
+
+    if (authIcon) {
+      const pathData = token
+        ? 'M5.121 17.804A7 7 0 0112 16a7 7 0 016.879 1.804M12 12a4 4 0 100-8 4 4 0 000 8z' // Profile icon path
+        : 'M15 12H3m12 0l-4-4m4 4l-4 4m6-10v-1a3 3 0 00-3-3H6a3 3 0 00-3 3v14a3 3 0 003 3h9a3 3 0 003-3v-1'; // Login icon path
+      
+      if (authIcon instanceof SVGPathElement) {
+        (authIcon as SVGPathElement).setAttribute('d', pathData);
+      }
+    }
+  });
+  </script>
+</Layout>
+
+<style>
+/* Your styles */
+</style>

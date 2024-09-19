@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client - Debug Version</title>
+    <!-- Include Socket.IO client library from CDN with error handling -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js" integrity="sha384-/KNQL8Nu5gCHLqwqfQjA689Hhoqgi2S84SNUxC3roTe4EhJ9AfLkp8QiQcU8AMzI" crossorigin="anonymous"></script>
+    <script>
+        console.log('Script tag executed');
+        if (typeof io !== 'undefined') {
+            console.log('Socket.IO library loaded successfully');
+        } else {
+            console.error('Failed to load Socket.IO library');
+        }
+    </script>
+</head>
+<body>
+    <h1>Socket.IO Client - Debug Version</h1>
+    
+    <script>
+        console.log('Inline script starting');
+        if (typeof io === 'undefined') {
+            console.error('io is not defined. Socket.IO library may not have loaded correctly.');
+        } else {
+            console.log('Attempting to create socket connection');
+            try {
+                const socket = io('http://localhost:1337', {
+                    transports: ['websocket']
+                });
+
+                socket.on('connect', () => {
+                    console.log('Connected to server');
+                });
+
+                socket.on('connect_error', (error) => {
+                    console.error('Connection error:', error);
+                });
+
+                socket.on('blog:create', (data) => {
+                    console.log('New blog created:', data);
+                    // Handle the new blog creation
+                });
+
+                socket.on('blog:update', (data) => {
+                    console.log('Blog updated:', data);
+                    // Handle the blog update
+                });
+
+                socket.on('blog:delete', (data) => {
+                    console.log('Blog deleted:', data);
+                    // Handle the blog deletion
+                });
+            } catch (error) {
+                console.error('Error setting up socket:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

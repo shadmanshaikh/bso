@@ -1,0 +1,135 @@
+--- 
+import Layout from "../layouts/Layout.astro"
+---
+
+<Layout title="Products">
+    <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 p-6"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                console.error('No auth token found');
+                return;
+            }
+
+            const categoryID = 1; // Example category ID
+
+            // Fetch products from a specific category
+            const fetchProducts = async () => {
+                const res = await fetch(`http://localhost:1337/api/categories/${categoryID}?populate=products.image`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (!res.ok) {
+                    throw new Error('Failed to fetch products');
+                }
+                return res.json();
+            };
+
+            // Fetch the user's cart
+            const fetchUser = async () => {
+                const res = await fetch('http://localhost:1337/api/users/me?populate=cart.products', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!res.ok) {
+                    throw new Error('Failed to fetch user cart');
+                }
+                return res.json();
+            };
+
+            // Function to update the user's cart
+            const updateCart = async (updatedProducts) => {
+                const res = await fetch(`http://localhost:1337/api/users/${userid}?populate=*`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: {
+                            cart: {
+                                products: updatedProducts // Only product IDs
+                            }
+                        }
+                    })
+                });
+                if (!res.ok) {
+                    throw new Error('Failed to update the cart');
+                }
+            };
+
+            // Fetch products and populate the page
+            try {
+                const productData = await fetchProducts();
+                const products = productData.data.attributes.products.data;
+                const productContainer = document.getElementById('product-list');
+
+                // Clear any existing content
+                productContainer.innerHTML = '';
+
+                products.forEach(product => {
+                    const imageUrl = `http://localhost:1337${product.attributes.image.data.attributes.url}`;
+                    const productHTML = `
+                        <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg">
+                            <img class="w-full h-48 object-cover rounded-t-lg" src="${imageUrl}" alt="${product.attributes.title}">
+                            <div class="p-5">
+                                <h5 class="text-lg font-bold tracking-tight text-gray-900">${product.attributes.title}</h5>
+                                <p class="mb-3 text-gray-700">Price: $${product.attributes.price}</p>
+                                <button class="add-to-cart-btn w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded" 
+                                        data-product-id="${product.id}">
+                                    Add to Cart
+                                </button>
+                                <button class="remove-from-cart-btn w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-2" 
+                                        data-product-id="${product.id}">
+                                    Remove from Cart
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    productContainer.innerHTML += productHTML;
+                });
+
+                const user = await fetchUser();
+                let cartProducts = user.cart.length > 0 ? user.cart[0].products : [];
+
+                // Add event listeners to buttons
+                document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const productId = parseInt(button.getAttribute('data-product-id'));
+
+                        // Check if product already in cart
+                        if (!cartProducts.some(p => p.id === productId)) {
+                            cartProducts.push({ id: productId });
+                            const updatedProducts = cartProducts.map(p => p.id);
+                            await updateCart(updatedProducts);
+                            console.log('Product added successfully!');
+                        } else {
+                            console.log('Product already in cart');
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.remove-from-cart-btn').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const productId = parseInt(button.getAttribute('data-product-id'));
+
+                        // Remove product from cart
+                        cartProducts = cartProducts.filter(p => p.id !== productId);
+                        const updatedProducts = cartProducts.map(p => p.id);
+                        await updateCart(updatedProducts);
+                        console.log('Product removed successfully!');
+                    });
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</Layout>

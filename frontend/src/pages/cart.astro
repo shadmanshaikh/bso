@@ -1,0 +1,143 @@
+---
+import Layout from "../layouts/Layout.astro"
+
+
+---
+
+<Layout title="User Cart">
+  <div class="min-h-screen flex flex-col items-center bg-gray-100 py-12">
+    <h2 class="text-3xl font-bold text-gray-900 mb-8">Your Cart</h2>
+    <div class="bg-white p-8 rounded-xl shadow-xl w-full max-w-4xl">
+        <div id="product-list">
+
+        </div>
+    </div>
+  </div>
+  <script>
+      const token = localStorage.getItem('authToken');
+      if(token){
+        //getting the current user details
+        try{
+          const res = await fetch(`http://localhost:1337/api/users/me`, {
+            method:'GET',
+            headers : {
+              'Authorization' : `Bearer ${token}`
+            },
+          });
+          const user = await res.json();
+          const userID = user.id;
+          // console.log(user.username);
+          // console.log(user.id);
+          const getCartRes = await fetch(`http://localhost:1337/api/users/${userID}?populate[cart][populate]=products.image`, {
+            method:'GET',
+            headers : {
+              'Authorization' : `Bearer ${token}`
+            },
+          });
+          const cartDetails = await getCartRes.json();
+          console.log(cartDetails.cart); 
+          const products = cartDetails.cart[0].products;
+/////////////////////////////////////////////////////////////
+const displayProducts = (products) => {
+    const productContainer = document.getElementById('product-list'); // Ensure there's a container in HTML
+    productContainer.innerHTML = ''; // Clear the container
+
+    products.forEach((product) => {
+        const productHTML = `
+            <div class="product-item">
+                <img src="http://localhost:1337${product.image.url}" alt="${product.title}" class="product-image">
+                <div class="product-details">
+                    <h3>${product.title}</h3>
+                    <p>Price: $${product.price}</p>
+                </div>
+                <button class="remove-btn bg-black text-white rounded p-2 mb-3" data-product-id="${product.id}">Remove</button>
+            </div>
+        `;
+        productContainer.innerHTML += productHTML; 
+    });
+
+const updateCart = async (userID, cartID, updatedProducts) => {
+    try {
+        const res = await fetch(`http://localhost:1337/api/users/${userID}?populate[cart][populate]=products.image`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                data: {
+                    cart: [
+                        {
+                            id: cartID, // ID of the cart to update
+                            products: updatedProducts // Updated list of products
+                        }
+                    ]
+                }
+            })
+        });
+
+        if (!res.ok) {
+            const errorText = await res.text();
+            throw new Error(`Failed to update the cart: ${errorText}`);
+        }
+        console.log("Cart updated successfully!");
+    } catch (err) {
+        console.error("Error occurred while updating the cart:", err);
+    }
+};
+
+const cartButtons = document.querySelectorAll('.remove-btn');
+cartButtons.forEach((button) => {
+    button.addEventListener('click', async function () {
+        let productId = parseInt(this.getAttribute('data-product-id')); // Ensure productId is a number
+        console.log(`Product ID to remove: ${productId}`);
+
+        try {
+            // Fetch the current cart data
+            const res = await fetch(`http://localhost:1337/api/users/${userID}?populate[cart][populate]=products.image`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!res.ok) {
+                const errorText = await res.text();
+                throw new Error(`Failed to fetch cart data: ${errorText}`);
+            }
+
+            const userData = await res.json();
+            const cart = userData.cart.find(c => c.id === 2); // Find the relevant cart
+            if (!cart) {
+                throw new Error('Cart not found');
+            }
+            // productId = 4;
+            // Filter out the product to remove
+            cart.products = cart.products.filter(prod => prod.id !== productId);
+
+            const updatedProducts = cart.products.map(prod => prod.id);
+            console.log('Updated products:', updatedProducts);
+            console.log(`user id : ${userID}  updated products : ${updatedProducts}`)
+            // Update the cart with the filtered product list
+            await updateCart(userID, 2, updatedProducts); // Pass the correct cart ID
+
+        } catch (err) {
+            console.error("Error occurred while processing the removal:", err);
+        }
+    });
+});
+
+};
+
+displayProducts(products);
+/////////////////////////////////////
+
+
+              }catch(err){
+                console.log('encountered error');
+              }
+    
+  }
+  </script>
+</Layout>

@@ -1,0 +1,89 @@
+---
+import Layout from "../layouts/Layout.astro"
+---
+
+<Layout title="blog">
+    <!-- title=""  -->
+    <div class="border">
+        <p id="title" class="ml-3"></p>
+        <p id="description" class="ml-3"></p>
+        <button id="addUser" class="m-3 p-2 text-white bg-black rounded">ADD USER</button>
+        <button id="removeUser" class="m-3 p-2 text-white bg-black rounded">REMOVE USER</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                console.error('No auth token found');
+                return;
+            }
+
+            // Fetch the current blog and populate users_permissions_users
+            const fetchBlog = async () => {
+                const res = await fetch('http://127.0.0.1:1337/api/blogs/4?populate=users_permissions_users', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!res.ok) {
+                    throw new Error('Failed to fetch the blog');
+                }
+                return res.json();
+            };
+
+            // Function to update the blog with new users_permissions_users relation
+            const updateBlog = async (updatedUsers) => {
+                const res = await fetch('http://127.0.0.1:1337/api/blogs/4', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: {
+                            users_permissions_users: updatedUsers // Only user IDs
+                        }
+                    })
+                });
+                if (!res.ok) {
+                    throw new Error('Failed to update the blog');
+                }
+            };
+
+            // Add User Logic
+            document.getElementById('addUser').addEventListener('click', async () => {
+                try {
+                    let blogData = await fetchBlog();
+                    const newUserID = 3; // ID of the user to add
+                    blogData.data.attributes.users_permissions_users.data.push({ id: newUserID });
+
+                    const updatedUsers = blogData.data.attributes.users_permissions_users.data.map(user => user.id);
+                    await updateBlog(updatedUsers);
+                    console.log('User added successfully!');
+                } catch (err) {
+                    console.error('Error adding user:', err);
+                }
+            });
+
+            // Remove User Logic
+            document.getElementById('removeUser').addEventListener('click', async () => {
+                try {
+                    let blogData = await fetchBlog();
+                    const removeUserID = 3; // ID of the user to remove
+
+                    // Filter out the user by ID
+                    blogData.data.attributes.users_permissions_users.data = blogData.data.attributes.users_permissions_users.data.filter(user => user.id !== removeUserID);
+
+                    const updatedUsers = blogData.data.attributes.users_permissions_users.data.map(user => user.id);
+                    await updateBlog(updatedUsers);
+                    console.log('User removed successfully!');
+                } catch (err) {
+                    console.error('Error removing user:', err);
+                }
+            });
+        });
+    </script>
+</Layout>
